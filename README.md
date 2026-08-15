@@ -196,3 +196,4 @@ scripts/seed-admin.mjs
 ```
 
 env added in amplify
+env updated
