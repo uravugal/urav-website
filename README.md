@@ -194,3 +194,5 @@ models/              User, Job, Webinar, Application
 middleware.ts        route protection
 scripts/seed-admin.mjs
 ```
+
+env added in amplify
