@@ -6,23 +6,23 @@ import {
 import { randomUUID } from "crypto";
 import { cdnBase, keyFromStoredUrl } from "./cdn";
 
-const region = process.env.AWS_REGION;
-const bucket = process.env.AWS_S3_BUCKET;
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+const region = process.env.URAV_AWS_REGION;
+const bucket = process.env.URAV_AWS_S3_BUCKET;
+const accessKeyId = process.env.URAV_AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.URAV_AWS_SECRET_ACCESS_KEY;
 
 /**
  * Public marketing images live in their own buckets (they are public, while
  * resumes usually are not), one per surface:
  *
- *   AWS_S3_HERO_BUCKET     — homepage hero slider images ONLY
- *   AWS_S3_WEBINAR_BUCKET  — webinar cover images
+ *   URAV_AWS_S3_HERO_BUCKET     — homepage hero slider images ONLY
+ *   URAV_AWS_S3_WEBINAR_BUCKET  — webinar cover images
  *
  * If either is unset we fall back to the main bucket and keep the images
  * apart with their own key prefix (`hero/`, `webinars/`).
  */
-const heroBucket = process.env.AWS_S3_HERO_BUCKET || bucket;
-const webinarBucket = process.env.AWS_S3_WEBINAR_BUCKET || bucket;
+const heroBucket = process.env.URAV_AWS_S3_HERO_BUCKET || bucket;
+const webinarBucket = process.env.URAV_AWS_S3_WEBINAR_BUCKET || bucket;
 
 export const RESUME_BUCKET = bucket;
 export const HERO_BUCKET = heroBucket;
@@ -33,7 +33,7 @@ let _client: S3Client | null = null;
 function getClient(): S3Client {
   if (!region || !accessKeyId || !secretAccessKey) {
     throw new Error(
-      "AWS S3 is not configured. Set AWS_REGION, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in .env.local (see .env.example)."
+      "AWS S3 is not configured. Set URAV_AWS_REGION, URAV_AWS_ACCESS_KEY_ID and URAV_AWS_SECRET_ACCESS_KEY in .env.local (see .env.example)."
     );
   }
   if (!_client) {
@@ -93,7 +93,7 @@ export async function uploadToS3(
   bucketName: string | undefined = bucket
 ): Promise<UploadResult> {
   if (!bucketName) {
-    throw new Error("AWS_S3_BUCKET is not set.");
+    throw new Error("URAV_AWS_S3_BUCKET is not set.");
   }
 
   const client = getClient();

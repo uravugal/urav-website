@@ -11,8 +11,8 @@ import {
 /**
  * Folder (S3 key prefix) all hero slide images live under.
  *
- * HERO_BUCKET / AWS_S3_HERO_BUCKET is for the homepage hero slider only —
- * webinar covers use AWS_S3_WEBINAR_BUCKET (see lib/webinarUploads.ts).
+ * HERO_BUCKET / URAV_AWS_S3_HERO_BUCKET is for the homepage hero slider only —
+ * webinar covers use URAV_AWS_S3_WEBINAR_BUCKET (see lib/webinarUploads.ts).
  */
 export const HERO_FOLDER = "hero";
 
@@ -36,7 +36,7 @@ export async function uploadHeroImage(file: File): Promise<HeroImagePair> {
   if (!isS3Configured(HERO_BUCKET)) {
     throw new HttpError(
       503,
-      "Image uploads are not configured on the server yet. Set AWS_S3_HERO_BUCKET (or AWS_S3_BUCKET) and the AWS credentials."
+      "Image uploads are not configured on the server yet. Set URAV_AWS_S3_HERO_BUCKET (or URAV_AWS_S3_BUCKET) and the AWS credentials."
     );
   }
 

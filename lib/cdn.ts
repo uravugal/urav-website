@@ -18,7 +18,7 @@
  *   WEBINAR_URL  — webinar cover images
  *   RESUME_URL   — student CVs
  *
- * The older `AWS_S3_*_PUBLIC_BASE_URL` names still work as fallbacks. With
+ * The older `URAV_AWS_S3_*_PUBLIC_BASE_URL` names still work as fallbacks. With
  * none of them set, nothing is rewritten and the stored S3 URL is served
  * exactly as before.
  *
@@ -32,13 +32,16 @@ export type MediaSurface = "hero" | "webinar" | "resume";
 function rawBase(surface: MediaSurface): string | undefined {
   switch (surface) {
     case "hero":
-      return process.env.HERO_URL || process.env.AWS_S3_HERO_PUBLIC_BASE_URL;
+      return (
+        process.env.HERO_URL || process.env.URAV_AWS_S3_HERO_PUBLIC_BASE_URL
+      );
     case "webinar":
       return (
-        process.env.WEBINAR_URL || process.env.AWS_S3_WEBINAR_PUBLIC_BASE_URL
+        process.env.WEBINAR_URL ||
+        process.env.URAV_AWS_S3_WEBINAR_PUBLIC_BASE_URL
       );
     case "resume":
-      return process.env.RESUME_URL || process.env.AWS_S3_PUBLIC_BASE_URL;
+      return process.env.RESUME_URL || process.env.URAV_AWS_S3_PUBLIC_BASE_URL;
   }
 }
 
@@ -60,9 +63,9 @@ export function cdnBase(surface: MediaSurface): string | null {
 /** Bucket names, used to strip the bucket out of path-style S3 URLs. */
 function bucketNames(): string[] {
   return [
-    process.env.AWS_S3_HERO_BUCKET,
-    process.env.AWS_S3_WEBINAR_BUCKET,
-    process.env.AWS_S3_BUCKET,
+    process.env.URAV_AWS_S3_HERO_BUCKET,
+    process.env.URAV_AWS_S3_WEBINAR_BUCKET,
+    process.env.URAV_AWS_S3_BUCKET,
   ].filter((name): name is string => Boolean(name));
 }
 

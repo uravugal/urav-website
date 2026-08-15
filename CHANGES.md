@@ -13,23 +13,25 @@ builds (`next build`).
   (`role + createdAt`, `role + approvalStatus + createdAt`) so the paginated
   admin lists stay fast.
 - `lib/api.ts` — two guards:
+
   - `requireAdmin()` → admin **or** superadmin
   - `requireSuperAdmin()` → superadmin only
 
   Both re-read the role **from MongoDB**, not from the JWT. The role you
   already changed in the database therefore takes effect immediately — no
   logout/login needed. `/api/auth/me` does the same top-up.
+
 - `isAdminRole()` replaces every `role === "admin"` comparison across the
   API and the layouts, so superadmins aren't locked out of normal admin work.
 
 **New endpoints (superadmin only):**
 
-| Method | Route | Purpose |
-|---|---|---|
-| GET | `/api/admin/admins` | List admins + superadmins (paginated, searchable) |
-| POST | `/api/admin/admins` | Create an admin |
-| PUT | `/api/admin/admins/[id]` | Edit name/phone, or reset password |
-| DELETE | `/api/admin/admins/[id]` | Remove an admin |
+| Method | Route                    | Purpose                                           |
+| ------ | ------------------------ | ------------------------------------------------- |
+| GET    | `/api/admin/admins`      | List admins + superadmins (paginated, searchable) |
+| POST   | `/api/admin/admins`      | Create an admin                                   |
+| PUT    | `/api/admin/admins/[id]` | Edit name/phone, or reset password                |
+| DELETE | `/api/admin/admins/[id]` | Remove an admin                                   |
 
 **New screen:** `/admin/admins` — create modal, password reset, remove.
 The sidebar link is hidden for ordinary admins (`superOnly` flag in
@@ -49,7 +51,7 @@ The sidebar link is hidden for ordinary admins (`superOnly` flag in
 - `DELETE /api/admin/students/[id]` — **superadmin only**; also removes their
   applications and deletes their CV from S3
 
-Email *is* editable here (unlike the student's own `/api/profile`, where it's
+Email _is_ editable here (unlike the student's own `/api/profile`, where it's
 locked) so you can fix a mistyped login — with a validity + uniqueness check.
 Password and role stay non-editable.
 
@@ -66,14 +68,14 @@ Password and role stay non-editable.
 - `lib/resume.ts` — shared replace logic used by both endpoints.
 
 **Ordering is deliberate:** upload the new file → save the new pointer →
-*then* delete the old object. If the upload or the DB write fails, the student
+_then_ delete the old object. If the upload or the DB write fails, the student
 still has their existing CV. Worst case is one orphaned file; never a student
 left with no resume. Cleanup failures are logged, not thrown — a dead S3
 delete must not fail the user's upload.
 
-| Method | Route | Who |
-|---|---|---|
-| POST / DELETE | `/api/profile/resume` | The signed-in user, their own CV |
+| Method        | Route                             | Who                              |
+| ------------- | --------------------------------- | -------------------------------- |
+| POST / DELETE | `/api/profile/resume`             | The signed-in user, their own CV |
 | POST / DELETE | `/api/admin/students/[id]/resume` | Any admin, on a student's behalf |
 
 **UI:** `components/ResumeUpload.tsx` — full layout in the student profile
@@ -85,6 +87,7 @@ validated client- and server-side.
 ## 6 · Recruiters edit their own profile
 
 - `/api/profile` PUT now picks its whitelist by role:
+
   - **student** → the existing education fields
   - **recruiter** → name, phone, designation, company name / website /
     location / industry / size / about, LinkedIn
@@ -92,6 +95,7 @@ validated client- and server-side.
 
   `approvalStatus` is deliberately absent from the recruiter list — a
   recruiter can never approve themselves; only an admin can flip it.
+
 - **New:** `components/RecruiterProfileCard.tsx` and `/recruiter/profile`,
   plus the "My Profile" sidebar entry. Their approval state is displayed as a
   read-only badge.
@@ -119,7 +123,7 @@ so the dashboard downloads one page at a time instead of the whole table.
   a per-page selector (10/25/50/100), and a "Showing 1–10 of 84" line.
 - Tab counts come back from the API alongside the page, so they stay accurate
   across pages rather than counting only what's loaded.
-- Applications search spans applicant *and* job/webinar — those live in other
+- Applications search spans applicant _and_ job/webinar — those live in other
   collections, so the route resolves matching ids first, then constrains the
   query (combined with `$and` so a recruiter's own-jobs scoping is preserved).
 
@@ -148,7 +152,7 @@ applicants, public jobs list + detail, webinars, and the navbar.
 2. **Existing CVs** uploaded before this change have no `resumeKey`. They're
    handled by `keyFromUrl()`, which assumes the standard
    `https://<bucket>.s3.<region>.amazonaws.com/<key>` or path-style form. If
-   you serve resumes through a CDN, set `AWS_S3_PUBLIC_BASE_URL` and confirm
+   you serve resumes through a CDN, set `URAV_AWS_S3_PUBLIC_BASE_URL` and confirm
    the parse works before relying on the cleanup.
 3. **Your superadmin session:** since `/api/auth/me` now reads the role from
    the database, the Admins link should appear on your next page load without
@@ -170,31 +174,31 @@ A student (or a logged-out visitor) can send a consultation request from
 
 **New model:** `models/Consultation.ts`
 
-| Field | Notes |
-|---|---|
-| `user` | Set only when a signed-in **student** submits — this is what links a request to a student record and lets them see the reply |
-| `name` / `email` / `phone` | Stored on the document so a logged-out visitor is still contactable |
-| `studentType`, `institution` | School / College / Other + where they study |
-| `topic`, `preferredMode`, `preferredTime` | Career Guidance, Course Selection, … / Email, Phone Call, Video Call / free text |
-| `message` | Required, 10–4000 characters |
-| `status` | `New → In Progress → Responded → Closed` |
-| `response` | The team's reply — **visible to the student** |
-| `internalNote` | Admin-only, never returned by the student endpoint |
-| `handledBy`, `respondedAt` | Who last touched it, and when a reply was written |
+| Field                                     | Notes                                                                                                                        |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `user`                                    | Set only when a signed-in **student** submits — this is what links a request to a student record and lets them see the reply |
+| `name` / `email` / `phone`                | Stored on the document so a logged-out visitor is still contactable                                                          |
+| `studentType`, `institution`              | School / College / Other + where they study                                                                                  |
+| `topic`, `preferredMode`, `preferredTime` | Career Guidance, Course Selection, … / Email, Phone Call, Video Call / free text                                             |
+| `message`                                 | Required, 10–4000 characters                                                                                                 |
+| `status`                                  | `New → In Progress → Responded → Closed`                                                                                     |
+| `response`                                | The team's reply — **visible to the student**                                                                                |
+| `internalNote`                            | Admin-only, never returned by the student endpoint                                                                           |
+| `handledBy`, `respondedAt`                | Who last touched it, and when a reply was written                                                                            |
 
 Indexed on `status + createdAt` and `createdAt` so the admin list paginates
 without a collection scan.
 
 **New endpoints:**
 
-| Method | Route | Access | Purpose |
-|---|---|---|---|
-| POST | `/api/consultations` | public | Submit a request |
-| GET | `/api/consultations` | logged in | The student's own requests (internal note stripped) |
-| GET | `/api/admin/consultations` | admin + superadmin | Paginated, searchable, `?status=` filtered, with tab counts |
-| GET | `/api/admin/consultations/[id]` | admin + superadmin | One request in full |
-| PATCH | `/api/admin/consultations/[id]` | admin + superadmin | Status, reply, internal note |
-| DELETE | `/api/admin/consultations/[id]` | **superadmin only** | Remove a request |
+| Method | Route                           | Access              | Purpose                                                     |
+| ------ | ------------------------------- | ------------------- | ----------------------------------------------------------- |
+| POST   | `/api/consultations`            | public              | Submit a request                                            |
+| GET    | `/api/consultations`            | logged in           | The student's own requests (internal note stripped)         |
+| GET    | `/api/admin/consultations`      | admin + superadmin  | Paginated, searchable, `?status=` filtered, with tab counts |
+| GET    | `/api/admin/consultations/[id]` | admin + superadmin  | One request in full                                         |
+| PATCH  | `/api/admin/consultations/[id]` | admin + superadmin  | Status, reply, internal note                                |
+| DELETE | `/api/admin/consultations/[id]` | **superadmin only** | Remove a request                                            |
 
 POST is deliberately open so someone can ask a question before registering.
 It still validates name / email / message length, and refuses a second
@@ -242,17 +246,17 @@ colour, a display position and a show/hide flag.
 
 ### New model — `models/HeroSlide.ts`
 
-| Field | Notes |
-|---|---|
-| `title` | Required. `\n` renders as a line break in the slider. |
-| `description` | Optional paragraph under the title. |
-| `ctaLabel` / `ctaHref` | Filled navy button. Renders only when both are set. |
-| `secondaryCtaLabel` / `secondaryCtaHref` | Outline button, same rule. |
-| `desktopImageUrl` / `desktopImageKey` | Required. Used from `md` (768px) up. |
-| `mobileImageUrl` / `mobileImageKey` | Optional. Used below 768px; falls back to the desktop image. |
-| `textTone` | `light` (white copy + dark scrim) or `dark` (navy copy + light scrim). |
-| `order` | Ascending display position; ties break on `createdAt`. |
-| `active` | Hidden slides stay in the dashboard but leave the site. |
+| Field                                    | Notes                                                                  |
+| ---------------------------------------- | ---------------------------------------------------------------------- |
+| `title`                                  | Required. `\n` renders as a line break in the slider.                  |
+| `description`                            | Optional paragraph under the title.                                    |
+| `ctaLabel` / `ctaHref`                   | Filled navy button. Renders only when both are set.                    |
+| `secondaryCtaLabel` / `secondaryCtaHref` | Outline button, same rule.                                             |
+| `desktopImageUrl` / `desktopImageKey`    | Required. Used from `md` (768px) up.                                   |
+| `mobileImageUrl` / `mobileImageKey`      | Optional. Used below 768px; falls back to the desktop image.           |
+| `textTone`                               | `light` (white copy + dark scrim) or `dark` (navy copy + light scrim). |
+| `order`                                  | Ascending display position; ties break on `createdAt`.                 |
+| `active`                                 | Hidden slides stay in the dashboard but leave the site.                |
 
 Indexed on `{ active, order, createdAt }` — the homepage query hits it directly.
 
@@ -261,15 +265,15 @@ old object from the bucket instead of leaking it.
 
 ### New endpoints
 
-| Method | Route | Who |
-|---|---|---|
-| GET | `/api/hero-slides` | Public — active slides in order |
-| GET | `/api/hero-slides?all=1` | Public — includes hidden ones (dashboard) |
-| POST | `/api/hero-slides` | **Superadmin** — multipart create |
-| PUT | `/api/hero-slides/[id]` | **Superadmin** — multipart (image change) or JSON (fields only) |
-| DELETE | `/api/hero-slides/[id]` | **Superadmin** — also deletes both images from S3 |
-| PUT | `/api/hero-slides/reorder` | **Superadmin** — `{ ids: [...] }`, position becomes `order` |
-| POST | `/api/hero-slides/seed` | **Superadmin** — copies the built-in defaults into the DB |
+| Method | Route                      | Who                                                             |
+| ------ | -------------------------- | --------------------------------------------------------------- |
+| GET    | `/api/hero-slides`         | Public — active slides in order                                 |
+| GET    | `/api/hero-slides?all=1`   | Public — includes hidden ones (dashboard)                       |
+| POST   | `/api/hero-slides`         | **Superadmin** — multipart create                               |
+| PUT    | `/api/hero-slides/[id]`    | **Superadmin** — multipart (image change) or JSON (fields only) |
+| DELETE | `/api/hero-slides/[id]`    | **Superadmin** — also deletes both images from S3               |
+| PUT    | `/api/hero-slides/reorder` | **Superadmin** — `{ ids: [...] }`, position becomes `order`     |
+| POST   | `/api/hero-slides/seed`    | **Superadmin** — copies the built-in defaults into the DB       |
 
 Ordering is sent as the whole list rather than as a two-row swap, so a
 half-applied reorder can't leave two slides fighting over one position.
@@ -283,9 +287,9 @@ its previous picture rather than none.
 - `uploadToS3` / `deleteFromS3` / `keyFromUrl` / `isS3Configured` now take an
   optional bucket, so hero images can go to their **own** bucket while resumes
   stay where they are. Existing callers are untouched.
-- `AWS_S3_HERO_BUCKET` — optional. Falls back to `AWS_S3_BUCKET`; either way
+- `URAV_AWS_S3_HERO_BUCKET` — optional. Falls back to `URAV_AWS_S3_BUCKET`; either way
   the images are keyed under the `hero/` prefix.
-- `AWS_S3_HERO_PUBLIC_BASE_URL` — optional CloudFront/custom domain.
+- `URAV_AWS_S3_HERO_PUBLIC_BASE_URL` — optional CloudFront/custom domain.
 - `validateImage()` — JPG / PNG / WebP / AVIF / GIF, 8MB cap.
 - Hero uploads get `Cache-Control: public, max-age=31536000, immutable`. Safe
   because every key carries a UUID, so a replacement is always a new URL.
@@ -296,13 +300,15 @@ every visitor's browser). Minimal policy for just the `hero/` prefix:
 ```json
 {
   "Version": "2012-10-17",
-  "Statement": [{
-    "Sid": "PublicReadHeroImages",
-    "Effect": "Allow",
-    "Principal": "*",
-    "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::YOUR_HERO_BUCKET/hero/*"
-  }]
+  "Statement": [
+    {
+      "Sid": "PublicReadHeroImages",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::YOUR_HERO_BUCKET/hero/*"
+    }
+  ]
 }
 ```
 
@@ -353,7 +359,6 @@ hide/show, edit and delete. The add/edit modal has both image pickers with live
 previews, a "Remove" action on the mobile image to fall back to the desktop
 one, and size hints (≈1600×620 wide, ≈800×1000 tall).
 
-
 ---
 
 ## Hero slider — buttons removed
@@ -382,7 +387,6 @@ leftover fields. Nothing reads them any more, so they're harmless; a one-off
 secondaryCtaLabel: "", secondaryCtaHref: "" } })` clears them if you want the
 documents tidy.
 
-
 ---
 
 ## Webinar cover images, auth-page redirects and the favicon
@@ -393,8 +397,8 @@ documents tidy.
 the image is never required.
 
 - `lib/webinarUploads.ts` (new, server-only) — uploads to the same public
-  bucket as the hero slides (`AWS_S3_HERO_BUCKET`, falling back to
-  `AWS_S3_BUCKET`) under a `webinars/` prefix, reusing `validateImage`
+  bucket as the hero slides (`URAV_AWS_S3_HERO_BUCKET`, falling back to
+  `URAV_AWS_S3_BUCKET`) under a `webinars/` prefix, reusing `validateImage`
   (JPG/PNG/WebP/AVIF/GIF, 8 MB cap).
 - `lib/webinarMedia.ts` (new, client-safe) — `WEBINAR_FALLBACK_IMAGE`,
   `webinarImage()` and `withWebinarImage()`.
@@ -433,7 +437,7 @@ scheduled) now render the same placeholder instead of a bare gradient.
 their own landing page — `/admin` for admin and superadmin, `/recruiter` for
 recruiters, `/dashboard` for students.
 
-The middleware reads the role by base64-decoding the JWT payload *without*
+The middleware reads the role by base64-decoding the JWT payload _without_
 verifying the signature — that can't be done on the Edge runtime and doesn't
 need to be, since this only picks a redirect target and every protected page
 and API route still verifies properly. An expired or malformed token is
@@ -470,10 +474,10 @@ The editable vector source sits next to it as `webinar.source.svg` — it is not
 referenced by the app, so re-colour or re-export from it whenever you like.
 
 **2. Webinar covers upload to their own bucket.**
-`AWS_S3_HERO_BUCKET` is now used by the homepage hero slider *only*.
+`URAV_AWS_S3_HERO_BUCKET` is now used by the homepage hero slider _only_.
 `lib/webinarUploads.ts` uploads, deletes and resolves keys against
-`WEBINAR_BUCKET` (`AWS_S3_WEBINAR_BUCKET`, falling back to `AWS_S3_BUCKET`),
-with an optional `AWS_S3_WEBINAR_PUBLIC_BASE_URL` for a CDN in front of it.
+`WEBINAR_BUCKET` (`URAV_AWS_S3_WEBINAR_BUCKET`, falling back to `URAV_AWS_S3_BUCKET`),
+with an optional `URAV_AWS_S3_WEBINAR_PUBLIC_BASE_URL` for a CDN in front of it.
 `publicBase()` in `lib/s3.ts` checks the webinar bucket before the hero one,
 so an unset env var collapsing onto the main bucket can't pick the wrong CDN
 base. Existing webinar images already in the hero bucket keep working —
@@ -548,13 +552,13 @@ address isn't there.
 
 **`lib/users.ts` (new) — one place for email lookups**
 
-| Helper | Use |
-|---|---|
-| `normalizeEmail(v)` | trim + lowercase, exactly how the schema stores it |
-| `isValidEmail(v)` | shared regex (was copy-pasted in four routes) |
-| `findByEmail(email, select?)` | returns the user document, or `null` |
-| `findIdByEmail(email)` | `_id` only, `.lean()` — for clash checks |
-| `emailExists(email)` | boolean wrapper |
+| Helper                        | Use                                                |
+| ----------------------------- | -------------------------------------------------- |
+| `normalizeEmail(v)`           | trim + lowercase, exactly how the schema stores it |
+| `isValidEmail(v)`             | shared regex (was copy-pasted in four routes)      |
+| `findByEmail(email, select?)` | returns the user document, or `null`               |
+| `findIdByEmail(email)`        | `_id` only, `.lean()` — for clash checks           |
+| `emailExists(email)`          | boolean wrapper                                    |
 
 All of them call `connectDB()` themselves and normalise the address before
 querying, so `"  Ravi@Gmail.com "` and `"ravi@gmail.com"` can no longer resolve
@@ -573,11 +577,11 @@ built on connect (`autoIndex` is on), so nothing to run by hand.
 
 **API responses**
 
-| Case | Status | Body |
-|---|---|---|
-| Address not in the DB | `404` | "No account is registered with that email address…" |
-| Link already sent < 60s ago | `429` | "A reset link was just sent to this address…" |
-| Sent | `200` | "We've sent a password reset link to *address*…" |
+| Case                        | Status | Body                                                |
+| --------------------------- | ------ | --------------------------------------------------- |
+| Address not in the DB       | `404`  | "No account is registered with that email address…" |
+| Link already sent < 60s ago | `429`  | "A reset link was just sent to this address…"       |
+| Sent                        | `200`  | "We've sent a password reset link to _address_…"    |
 
 **UI** — `app/forgot-password/page.tsx` reads the `404` status off `ApiError`
 and renders a dedicated **"Email not registered"** panel: the address that was
@@ -609,14 +613,14 @@ a fallback. Nothing has to be migrated in MongoDB.
 
 **`lib/cdn.ts` (new)** — pure string helpers, no aws-sdk or mongoose:
 
-| Export | Purpose |
-|---|---|
-| `cdnBase(surface)` | Normalised base for `"hero" \| "webinar" \| "resume"`. Accepts a bare domain (adds `https://`) and trims a trailing slash, so the value pasted from the AWS console works as-is. Returns `null` when unset. |
-| `keyFromStoredUrl(url)` | Recovers the key from a virtual-hosted S3 URL, a path-style one (`s3.<region>.amazonaws.com/<bucket>/<key>`) or an existing CloudFront URL. Returns `null` for `/public` paths. |
-| `cdnUrl(surface, key, storedUrl)` | The URL to serve. Key wins → key parsed out of the stored URL → stored URL untouched. |
+| Export                            | Purpose                                                                                                                                                                                                     |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cdnBase(surface)`                | Normalised base for `"hero" \| "webinar" \| "resume"`. Accepts a bare domain (adds `https://`) and trims a trailing slash, so the value pasted from the AWS console works as-is. Returns `null` when unset. |
+| `keyFromStoredUrl(url)`           | Recovers the key from a virtual-hosted S3 URL, a path-style one (`s3.<region>.amazonaws.com/<bucket>/<key>`) or an existing CloudFront URL. Returns `null` for `/public` paths.                             |
+| `cdnUrl(surface, key, storedUrl)` | The URL to serve. Key wins → key parsed out of the stored URL → stored URL untouched.                                                                                                                       |
 
-Env, newest name first — `AWS_S3_PUBLIC_BASE_URL`,
-`AWS_S3_HERO_PUBLIC_BASE_URL` and `AWS_S3_WEBINAR_PUBLIC_BASE_URL` still work
+Env, newest name first — `URAV_AWS_S3_PUBLIC_BASE_URL`,
+`URAV_AWS_S3_HERO_PUBLIC_BASE_URL` and `URAV_AWS_S3_WEBINAR_PUBLIC_BASE_URL` still work
 as fallbacks:
 
 ```
@@ -629,17 +633,17 @@ RESUME_URL=https://d333333abcdef8.cloudfront.net
 document leaving every route, so the mapping lives there rather than in ~15
 handlers:
 
-| Field | Key field | Surface |
-|---|---|---|
-| `desktopImageUrl` | `desktopImageKey` | hero |
-| `mobileImageUrl` | `mobileImageKey` | hero |
-| `imageUrl` | `imageKey` | webinar |
-| `resumeUrl` | `resumeKey` | resume |
+| Field             | Key field         | Surface |
+| ----------------- | ----------------- | ------- |
+| `desktopImageUrl` | `desktopImageKey` | hero    |
+| `mobileImageUrl`  | `mobileImageKey`  | hero    |
+| `imageUrl`        | `imageKey`        | webinar |
+| `resumeUrl`       | `resumeKey`       | resume  |
 
 Because `serialize()` recurses, populated sub-documents are covered too — the
 `user` on a consultation, the applicant on an application. `Application.resumeUrl`
 is a snapshot with no key of its own, so it resolves through the URL parser.
-`withWebinarImage()` runs *after* `serialize()`, so `displayImageUrl` inherits
+`withWebinarImage()` runs _after_ `serialize()`, so `displayImageUrl` inherits
 the rewritten value and the `/public` placeholder is still used when there is
 no upload.
 

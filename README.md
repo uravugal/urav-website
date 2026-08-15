@@ -39,23 +39,22 @@ Copy `.env.example` to `.env.local` and fill it in:
 cp .env.example .env.local
 ```
 
-| Variable | What it's for |
-| --- | --- |
-| `MONGODB_URI` | MongoDB connection string (local or Atlas) |
-| `JWT_SECRET` | Long random string for signing sessions — `openssl rand -base64 48` |
-| `AWS_REGION` / `AWS_S3_BUCKET` | Your S3 bucket and its region |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | IAM credentials with `s3:PutObject` on the bucket |
-| `HERO_URL` | *(optional)* CloudFront domain in front of the hero bucket |
-| `WEBINAR_URL` | *(optional)* CloudFront domain in front of the webinar bucket |
-| `RESUME_URL` | *(optional)* CloudFront domain in front of the resume (main) bucket |
-| `AWS_S3_HERO_BUCKET` | *(optional)* Public bucket for the homepage hero slider images **only** — defaults to `AWS_S3_BUCKET` |
-| `AWS_S3_WEBINAR_BUCKET` | *(optional)* Public bucket for webinar cover images — defaults to `AWS_S3_BUCKET` |
-| `ADMIN_SETUP_KEY` | Secret used once to create the first admin (see below) |
-| `APP_URL` | Public site URL used to build password-reset links, e.g. `https://uravctc.com` |
-| `SMTP_HOST` / `SMTP_PORT` | Mail server, e.g. `smtp.gmail.com` / `587` |
-| `SMTP_USER` / `SMTP_PASS` | Mailbox login — for Gmail this is an **app password**, not the account password |
-| `MAIL_FROM` | *(optional)* From header, e.g. `URAV <no-reply@uravctc.com>` — defaults to `SMTP_USER` |
-
+| Variable                                                | What it's for                                                                                              |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `MONGODB_URI`                                           | MongoDB connection string (local or Atlas)                                                                 |
+| `JWT_SECRET`                                            | Long random string for signing sessions — `openssl rand -base64 48`                                        |
+| `URAV_AWS_REGION` / `URAV_AWS_S3_BUCKET`                | Your S3 bucket and its region                                                                              |
+| `URAV_AWS_ACCESS_KEY_ID` / `URAV_AWS_SECRET_ACCESS_KEY` | IAM credentials with `s3:PutObject` on the bucket                                                          |
+| `HERO_URL`                                              | _(optional)_ CloudFront domain in front of the hero bucket                                                 |
+| `WEBINAR_URL`                                           | _(optional)_ CloudFront domain in front of the webinar bucket                                              |
+| `RESUME_URL`                                            | _(optional)_ CloudFront domain in front of the resume (main) bucket                                        |
+| `URAV_AWS_S3_HERO_BUCKET`                               | _(optional)_ Public bucket for the homepage hero slider images **only** — defaults to `URAV_AWS_S3_BUCKET` |
+| `URAV_AWS_S3_WEBINAR_BUCKET`                            | _(optional)_ Public bucket for webinar cover images — defaults to `URAV_AWS_S3_BUCKET`                     |
+| `ADMIN_SETUP_KEY`                                       | Secret used once to create the first admin (see below)                                                     |
+| `APP_URL`                                               | Public site URL used to build password-reset links, e.g. `https://uravctc.com`                             |
+| `SMTP_HOST` / `SMTP_PORT`                               | Mail server, e.g. `smtp.gmail.com` / `587`                                                                 |
+| `SMTP_USER` / `SMTP_PASS`                               | Mailbox login — for Gmail this is an **app password**, not the account password                            |
+| `MAIL_FROM`                                             | _(optional)_ From header, e.g. `URAV <no-reply@uravctc.com>` — defaults to `SMTP_USER`                     |
 
 ### CloudFront
 
@@ -76,8 +75,8 @@ variable empty keeps that surface on the direct S3 URL.
 The distribution's origin must point at the bucket root (no origin path), since
 the stored key is appended to the domain as-is.
 
-The older `AWS_S3_PUBLIC_BASE_URL`, `AWS_S3_HERO_PUBLIC_BASE_URL` and
-`AWS_S3_WEBINAR_PUBLIC_BASE_URL` names still work as fallbacks if they are
+The older `URAV_AWS_S3_PUBLIC_BASE_URL`, `URAV_AWS_S3_HERO_PUBLIC_BASE_URL` and
+`URAV_AWS_S3_WEBINAR_PUBLIC_BASE_URL` names still work as fallbacks if they are
 already set somewhere.
 
 ### S3 bucket setup (so resume links open)
@@ -90,13 +89,15 @@ through CloudFront and set `RESUME_URL`. A minimal read policy for the
 ```json
 {
   "Version": "2012-10-17",
-  "Statement": [{
-    "Sid": "PublicReadResumes",
-    "Effect": "Allow",
-    "Principal": "*",
-    "Action": "s3:GetObject",
-    "Resource": "arn:aws:s3:::YOUR_BUCKET/resumes/*"
-  }]
+  "Statement": [
+    {
+      "Sid": "PublicReadResumes",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::YOUR_BUCKET/resumes/*"
+    }
+  ]
 }
 ```
 
@@ -136,20 +137,20 @@ Pages: `/` · `/login` · `/register` · `/jobs` · `/jobs/[id]` · `/webinars` 
 
 API (all under `/api`):
 
-| Method + path | Access | Purpose |
-| --- | --- | --- |
-| `POST /auth/register` | public | create student, upload resume to S3, log in |
-| `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` | public | session management |
-| `GET /jobs`, `GET /jobs/[id]` | public | list / view jobs |
-| `POST /jobs`, `PUT/DELETE /jobs/[id]` | admin | manage jobs |
-| `GET /webinars`, `GET /webinars/[id]` | public | list / view webinars |
-| `POST /webinars`, `PUT/DELETE /webinars/[id]` | admin | manage webinars |
-| `POST /applications` | student | apply to a job / register for a webinar |
-| `GET /applications` | auth | student sees own; admin sees all |
-| `PUT /applications/[id]` | admin | update status |
-| `DELETE /applications/[id]` | owner/admin | withdraw / remove |
-| `GET /admin/stats` | admin | dashboard counts |
-| `POST /admin/seed` | setup key | bootstrap admin + samples |
+| Method + path                                           | Access      | Purpose                                     |
+| ------------------------------------------------------- | ----------- | ------------------------------------------- |
+| `POST /auth/register`                                   | public      | create student, upload resume to S3, log in |
+| `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` | public      | session management                          |
+| `GET /jobs`, `GET /jobs/[id]`                           | public      | list / view jobs                            |
+| `POST /jobs`, `PUT/DELETE /jobs/[id]`                   | admin       | manage jobs                                 |
+| `GET /webinars`, `GET /webinars/[id]`                   | public      | list / view webinars                        |
+| `POST /webinars`, `PUT/DELETE /webinars/[id]`           | admin       | manage webinars                             |
+| `POST /applications`                                    | student     | apply to a job / register for a webinar     |
+| `GET /applications`                                     | auth        | student sees own; admin sees all            |
+| `PUT /applications/[id]`                                | admin       | update status                               |
+| `DELETE /applications/[id]`                             | owner/admin | withdraw / remove                           |
+| `GET /admin/stats`                                      | admin       | dashboard counts                            |
+| `POST /admin/seed`                                      | setup key   | bootstrap admin + samples                   |
 
 ## How the pieces fit
 

@@ -9,7 +9,7 @@ import {
 } from "@/lib/s3";
 
 /**
- * Webinar covers live in their own public bucket (AWS_S3_WEBINAR_BUCKET),
+ * Webinar covers live in their own public bucket (URAV_AWS_S3_WEBINAR_BUCKET),
  * under their own prefix. The hero bucket is reserved for the homepage
  * slider — do not upload webinar images there.
  */
@@ -21,7 +21,9 @@ export interface WebinarImageUpload {
 }
 
 /** Upload one webinar cover image. Throws HttpError on a bad file. */
-export async function uploadWebinarImage(file: File): Promise<WebinarImageUpload> {
+export async function uploadWebinarImage(
+  file: File
+): Promise<WebinarImageUpload> {
   const invalid = validateImage({
     type: file.type,
     size: file.size,
@@ -32,7 +34,7 @@ export async function uploadWebinarImage(file: File): Promise<WebinarImageUpload
   if (!isS3Configured(WEBINAR_BUCKET)) {
     throw new HttpError(
       503,
-      "Webinar image uploads are not configured on the server yet. Set AWS_S3_WEBINAR_BUCKET (or AWS_S3_BUCKET) and the AWS credentials."
+      "Webinar image uploads are not configured on the server yet. Set URAV_AWS_S3_WEBINAR_BUCKET (or URAV_AWS_S3_BUCKET) and the AWS credentials."
     );
   }
 
