@@ -13,6 +13,7 @@ import {
   ArrowRight,
   ShieldCheck,
   MessageSquare,
+  Mail,
 } from "lucide-react";
 import { api } from "@/lib/client";
 import { useAuth } from "@/components/AuthProvider";
@@ -28,6 +29,8 @@ interface Stats {
   admins: number;
   consultations: number;
   newConsultations: number;
+  contactMessages: number;
+  newContactMessages: number;
   jobApplications: number;
   webinarApplications: number;
   totalApplications: number;
@@ -56,6 +59,12 @@ export default function AdminOverview() {
       value: stats?.consultations,
       icon: MessageSquare,
       href: "/admin/consultations",
+    },
+    {
+      label: "Contact Messages",
+      value: stats?.contactMessages,
+      icon: Mail,
+      href: "/admin/contact",
     },
     {
       label: "Total Applications",
@@ -113,9 +122,23 @@ export default function AdminOverview() {
         </Link>
       )}
 
+      {!loading && (stats?.newContactMessages ?? 0) > 0 && (
+        <Link
+          href="/admin/contact"
+          className="mt-3 flex items-center gap-3 rounded-lg border border-primary/30 bg-primary-light/60 px-4 py-3 text-sm hover:bg-primary-light"
+        >
+          <Mail className="h-4 w-4 shrink-0 text-primary" />
+          <span className="text-slate-700">
+            {stats?.newContactMessages} unread message
+            {stats?.newContactMessages === 1 ? "" : "s"} from the contact page.
+          </span>
+          <ArrowRight className="ml-auto h-4 w-4 text-primary" />
+        </Link>
+      )}
+
       {loading ? (
         <div className="mt-6">
-          <SkeletonStats count={isSuper ? 7 : 6} />
+          <SkeletonStats count={isSuper ? 8 : 7} />
         </div>
       ) : (
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

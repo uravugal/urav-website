@@ -662,3 +662,127 @@ returned as-is.
 > CVs — that distribution needs OAC plus a bucket policy allowing only it, or
 > the PDFs are public to anyone with the link, exactly as they were on the raw
 > S3 URL.
+
+---
+
+## Contact page — details in the database, messages stored, three a day
+
+Two separate things were static on `/contact`: the details in the left column
+were a hardcoded array in the page, and "Send a message" only flipped a
+`useState` — nothing was ever stored. Both now go through MongoDB.
+
+### The details (superadmin-editable)
+
+**`models/ContactInfo.ts` (new)** — one document, not a collection. Every
+write upserts on a fixed `key: "primary"`, so the page can never end up with
+two competing sets of details and there is no "which row is live?" question.
+
+| Field                | Shown as                                    |
+| -------------------- | ------------------------------------------- |
+| `intro`              | the line under the page title               |
+| `email` / `altEmail` | `mailto:` rows                              |
+| `phone` / `altPhone` | `tel:` rows                                 |
+| `whatsapp`           | a `wa.me` row (country code, digits only)   |
+| `address`            | the Office row — line breaks are preserved  |
+| `hours`              | the Hours row                               |
+| `mapUrl`             | the "Get directions" button                 |
+
+Nothing is required. **A blank field hides that row** rather than rendering an
+empty line — that is how "we don't have a second number" is expressed, so
+there is no separate visibility toggle to keep in sync with the value.
+
+| Method | Route               | Access     |
+| ------ | ------------------- | ---------- |
+| GET    | `/api/contact-info` | public     |
+| PUT    | `/api/contact-info` | superadmin |
+
+`PUT` validates both email addresses and requires `http(s)://` on the map
+link — a typo there quietly breaks the only way to reach the team. Fields
+omitted from the body are **cleared**, which is what makes removing a second
+phone number work from the form.
+
+**`app/contact/page.tsx`** reads the document server-side (`force-dynamic`)
+and renders it through **`components/ContactDetails.tsx` (new)**. Falling back
+to **`lib/contactDefaults.ts` (new)** covers two cases with one path: nothing
+saved yet, and MongoDB briefly unreachable. A contact page that 500s is worse
+than one showing the old placeholder details, so the read is wrapped in a
+`try/catch` rather than allowed to throw.
+
+**`components/ContactInfoEditor.tsx` (new)** is the superadmin form. Until the
+first save it shows a "still using the built-in placeholders" notice and a
+**Load the current defaults** button, so the first save is an edit rather than
+a retype.
+
+### The messages
+
+**`models/ContactMessage.ts` (new)** — name, email, phone, subject, message,
+`status` (`New | Read | Replied | Closed`), `reply`, `internalNote`,
+`handledBy`, `ip`, and `dayKey` (see below). Indexed for the two things that
+actually happen: the quota check (`email + dayKey`, `user + dayKey`) and the
+admin list (`status + createdAt`).
+
+| Method | Route                             | Access                |
+| ------ | --------------------------------- | --------------------- |
+| POST   | `/api/contact`                    | public                |
+| GET    | `/api/contact`                    | public — quota only   |
+| GET    | `/api/admin/contact-messages`     | admin (paginated)     |
+| PATCH  | `/api/admin/contact-messages/[id]`| admin                 |
+| DELETE | `/api/admin/contact-messages/[id]`| superadmin            |
+
+`GET /api/contact` returns **only** the allowance, never anyone's messages.
+Delete is superadmin-only, as with consultations: a deleted message may be the
+only record of an enquiry, so ordinary admins close them instead.
+
+### Three messages per sender per day
+
+**`lib/contactLimit.ts` (new)** — client-safe (no mongoose, no aws-sdk), so
+the same constant and the same reset time drive the form and the API.
+
+**A "day" is an IST calendar day, not a rolling 24 hours.** Someone who sends
+three messages this evening can send again after midnight — which is what
+"come back tomorrow" means to a visitor, and it reads the same for a visitor
+abroad as for the team reading the messages. `istDayKey()` produces
+`YYYY-MM-DD`, stored on each message as `dayKey`, so the check is one indexed
+equality match instead of a date range recomputed per request.
+
+**Who the limit applies to:** the email address, plus the account id when the
+sender is signed in — so changing the email in the form doesn't hand out a
+fresh three.
+
+> Deliberately **not** keyed on IP. A college computer lab or a phone on
+> mobile data shares one address between many people, and blocking the fourth
+> unrelated student of the day would be worse than the spam it prevents. The
+> IP is still recorded on each message so genuine abuse can be spotted.
+
+**Shown in the UI, not just enforced.** `components/ContactForm.tsx` reads the
+allowance on load (signed in) and again 400 ms after the email field settles
+(visitor), so the count is on screen *before* someone writes a long message
+they can't send:
+
+- nothing typed yet → "You can send up to **3 messages a day**."
+- address recognised → "**2 of 3 messages left today** for you@example.com."
+- exhausted → the fields are disabled, the button reads **Daily limit
+  reached**, and the notice points at the phone/email details on the left.
+
+The confirmation screen carries the same count, and hides "Send another
+message" once the third has gone. The server enforces the limit independently
+and answers the fourth attempt with a `429`; if that happens anyway (a second
+tab, a stale reading) the form refetches the allowance so the notice matches
+reality.
+
+### Wired into the dashboard
+
+- `app/admin/contact/page.tsx` (new) — the inbox, with status tabs, search and
+  pagination, reply/internal-note editors, and a **Reply by email** link that
+  moves a `New` message to `Read` on click. A superadmin additionally gets a
+  **Page details** switch to the editor above; an ordinary admin sees no
+  switch at all rather than a tab that refuses to open.
+- `app/admin/layout.tsx` — a **Contact** item in the sidebar (not `superOnly`;
+  every admin handles the inbox).
+- `app/admin/page.tsx` + `/api/admin/stats` — a Contact Messages tile and an
+  unread banner, alongside the existing recruiter and consultation ones.
+- `components/StatusBadge.tsx` — styles for `Read` and `Replied`.
+
+> The fallback details are still the old placeholders
+> (`hello@urav.example`, `+91 00000 00000`). They are what `/contact` shows
+> until the first save from the dashboard replaces them.

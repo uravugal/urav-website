@@ -11,10 +11,12 @@ const styles: Record<string, string> = {
   Confirmed: "bg-success/10 text-success",
   Attended: "bg-emerald-50 text-emerald-600",
   Cancelled: "bg-slate-100 text-slate-500",
-  // Consultation statuses
+  // Consultation + contact message statuses
   New: "bg-primary-light text-primary",
   "In Progress": "bg-warning/10 text-warning",
   Responded: "bg-success/10 text-success",
+  Read: "bg-slate-100 text-slate-600",
+  Replied: "bg-success/10 text-success",
   Closed: "bg-slate-100 text-slate-500",
 };
 

@@ -12,6 +12,7 @@ import {
   Building2,
   ShieldCheck,
   MessageSquare,
+  Mail,
   Images,
   LogOut,
   ExternalLink,
@@ -38,6 +39,7 @@ const nav = [
     label: "Consultations",
     icon: MessageSquare,
   },
+  { href: "/admin/contact", label: "Contact", icon: Mail },
   {
     href: "/admin/hero",
     label: "Home slider",

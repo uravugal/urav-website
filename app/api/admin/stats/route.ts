@@ -4,6 +4,7 @@ import { Job } from "@/models/Job";
 import { Webinar } from "@/models/Webinar";
 import { Application } from "@/models/Application";
 import { Consultation } from "@/models/Consultation";
+import { ContactMessage } from "@/models/ContactMessage";
 import { ok, handle, requireAdmin } from "@/lib/api";
 
 export const runtime = "nodejs";
@@ -26,6 +27,8 @@ export async function GET() {
       admins,
       consultations,
       newConsultations,
+      contactMessages,
+      newContactMessages,
     ] = await Promise.all([
       User.countDocuments({ role: "student" }),
       Job.countDocuments(),
@@ -38,6 +41,8 @@ export async function GET() {
       User.countDocuments({ role: { $in: ["admin", "superadmin"] } }),
       Consultation.countDocuments(),
       Consultation.countDocuments({ status: "New" }),
+      ContactMessage.countDocuments(),
+      ContactMessage.countDocuments({ status: "New" }),
     ]);
 
     return ok({
@@ -50,6 +55,8 @@ export async function GET() {
       admins,
       consultations,
       newConsultations,
+      contactMessages,
+      newContactMessages,
       jobApplications: jobApps,
       webinarApplications: webinarApps,
       totalApplications: jobApps + webinarApps,

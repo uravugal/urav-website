@@ -232,3 +232,74 @@ export interface ConsultationRecord {
     | { _id: string; firstName: string; lastName: string; email: string }
     | null;
 }
+
+/* ------------------------------------------------------------------ */
+/* Contact page                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The editable contact details behind /contact.
+ *
+ * Every field is optional: an empty one is hidden on the public page rather
+ * than rendered blank, so a superadmin can leave out the parts that don't
+ * apply. `_id` is absent while the built-in defaults are being shown.
+ */
+export interface ContactInfoRecord {
+  _id?: string;
+  intro?: string;
+  email?: string;
+  altEmail?: string;
+  phone?: string;
+  altPhone?: string;
+  whatsapp?: string;
+  address?: string;
+  hours?: string;
+  updatedAt?: string;
+  updatedBy?:
+    | string
+    | { _id: string; firstName: string; lastName: string; email: string }
+    | null;
+}
+
+export const CONTACT_MESSAGE_STATUSES = [
+  "New",
+  "Read",
+  "Replied",
+  "Closed",
+] as const;
+
+export type ContactMessageStatus = (typeof CONTACT_MESSAGE_STATUSES)[number];
+
+/** A message sent from the contact form. `internalNote` and `ip` are admin-only. */
+export interface ContactMessageRecord {
+  _id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  status: ContactMessageStatus;
+  reply?: string;
+  repliedAt?: string;
+  createdAt?: string;
+  /** Admin view only. */
+  internalNote?: string;
+  ip?: string;
+  dayKey?: string;
+  /** Populated when the sender was signed in. */
+  user?:
+    | string
+    | {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone?: string;
+        role?: string;
+      }
+    | null;
+  handledBy?:
+    | string
+    | { _id: string; firstName: string; lastName: string; email: string }
+    | null;
+}
