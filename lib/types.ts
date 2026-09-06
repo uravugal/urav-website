@@ -93,6 +93,22 @@ export interface WebinarItem {
   createdAt?: string;
 }
 
+export interface CourseItem {
+  _id: string;
+  title: string;
+  description?: string;
+  /** Uploaded thumbnail. Empty when the admin didn't add one. */
+  imageUrl?: string;
+  imageKey?: string;
+  /**
+   * Always set by the course API — the uploaded image, or the built-in
+   * placeholder. Use this for rendering.
+   */
+  displayImageUrl?: string;
+  active?: boolean;
+  createdAt?: string;
+}
+
 export interface StudentRecord {
   _id: string;
   firstName: string;

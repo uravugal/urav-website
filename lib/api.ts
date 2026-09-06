@@ -26,8 +26,21 @@ export function fail(message: string, status = 400) {
   return NextResponse.json({ ok: false, error: message }, { status });
 }
 
-/** Convert a Mongoose doc/lean object to a plain JSON-safe object with string ids. */
-export function serialize<T extends Record<string, any>>(doc: T): any {
+/**
+ * Convert a Mongoose doc/lean object to a plain JSON-safe object with string
+ * ids.
+ *
+ * `surfaceOverrides` lets a caller correct the CDN surface for a field name
+ * that isn't unique across collections — e.g. both webinars and courses
+ * store their thumbnail in `imageUrl`/`imageKey`, and `CDN_FIELDS` can only
+ * guess one default (`"webinar"`) for that name. Pass
+ * `{ imageUrl: "course" }` when serializing a course so it resolves against
+ * `COURSE_URL` instead.
+ */
+export function serialize<T extends Record<string, any>>(
+  doc: T,
+  surfaceOverrides?: Partial<Record<string, MediaSurface>>
+): any {
   if (doc == null) return doc;
   const obj: any = typeof doc.toObject === "function" ? doc.toObject() : { ...doc };
   for (const key of Object.keys(obj)) {
@@ -38,7 +51,9 @@ export function serialize<T extends Record<string, any>>(doc: T): any {
       obj[key] = val.toISOString();
     } else if (Array.isArray(val)) {
       obj[key] = val.map((v) =>
-        v && typeof v === "object" && !(v instanceof Date) ? serialize(v) : v
+        v && typeof v === "object" && !(v instanceof Date)
+          ? serialize(v, surfaceOverrides)
+          : v
       );
     } else if (
       val &&
@@ -46,16 +61,19 @@ export function serialize<T extends Record<string, any>>(doc: T): any {
       !(val instanceof Date) &&
       val.constructor?.name === "Object"
     ) {
-      obj[key] = serialize(val);
+      obj[key] = serialize(val, surfaceOverrides);
     }
   }
 
   // Point every stored file URL at CloudFront. The key in the same document
   // wins; when there isn't one (older resumes, application snapshots) the key
   // is read back out of the stored S3 URL.
-  for (const [field, { surface, keyField }] of Object.entries(CDN_FIELDS)) {
+  for (const [field, { surface: defaultSurface, keyField }] of Object.entries(
+    CDN_FIELDS
+  )) {
     const value = obj[field];
     if (typeof value !== "string" || !value) continue;
+    const surface = surfaceOverrides?.[field] ?? defaultSurface;
     const key = typeof obj[keyField] === "string" ? obj[keyField] : null;
     obj[field] = cdnUrl(surface, key, value);
   }

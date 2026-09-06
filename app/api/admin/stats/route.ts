@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { Job } from "@/models/Job";
 import { Webinar } from "@/models/Webinar";
+import { Course } from "@/models/Course";
 import { Application } from "@/models/Application";
 import { Consultation } from "@/models/Consultation";
 import { ContactMessage } from "@/models/ContactMessage";
@@ -19,6 +20,7 @@ export async function GET() {
       students,
       jobs,
       webinars,
+      courses,
       jobApps,
       webinarApps,
       recruiters,
@@ -33,6 +35,7 @@ export async function GET() {
       User.countDocuments({ role: "student" }),
       Job.countDocuments(),
       Webinar.countDocuments(),
+      Course.countDocuments(),
       Application.countDocuments({ kind: "job" }),
       Application.countDocuments({ kind: "webinar" }),
       User.countDocuments({ role: "recruiter" }),
@@ -49,6 +52,7 @@ export async function GET() {
       students,
       jobs,
       webinars,
+      courses,
       recruiters,
       pendingRecruiters,
       recruiterJobs,

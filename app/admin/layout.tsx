@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Briefcase,
   Video,
+  BookOpen,
   Users,
   GraduationCap,
   Building2,
@@ -32,6 +33,7 @@ const nav = [
   { href: "/admin/students", label: "Students", icon: GraduationCap },
   { href: "/admin/recruiters", label: "Recruiters", icon: Building2 },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/admin/courses", label: "Courses", icon: BookOpen },
   { href: "/admin/webinars", label: "Webinars", icon: Video },
   { href: "/admin/applications", label: "Applications", icon: Users },
   {

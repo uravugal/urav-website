@@ -17,16 +17,19 @@ const secretAccessKey = process.env.URAV_AWS_SECRET_ACCESS_KEY;
  *
  *   URAV_AWS_S3_HERO_BUCKET     — homepage hero slider images ONLY
  *   URAV_AWS_S3_WEBINAR_BUCKET  — webinar cover images
+ *   URAV_AWS_S3_COURSE_BUCKET   — course thumbnail images
  *
- * If either is unset we fall back to the main bucket and keep the images
- * apart with their own key prefix (`hero/`, `webinars/`).
+ * If any is unset we fall back to the main bucket and keep the images
+ * apart with their own key prefix (`hero/`, `webinars/`, `courses/`).
  */
 const heroBucket = process.env.URAV_AWS_S3_HERO_BUCKET || bucket;
 const webinarBucket = process.env.URAV_AWS_S3_WEBINAR_BUCKET || bucket;
+const courseBucket = process.env.URAV_AWS_S3_COURSE_BUCKET || bucket;
 
 export const RESUME_BUCKET = bucket;
 export const HERO_BUCKET = heroBucket;
 export const WEBINAR_BUCKET = webinarBucket;
+export const COURSE_BUCKET = courseBucket;
 
 let _client: S3Client | null = null;
 
@@ -63,6 +66,10 @@ function publicBase(bucketName: string): string {
   // collapses onto the main bucket, and the wrong CDN base would win.
   if (bucketName === webinarBucket) {
     const base = cdnBase("webinar");
+    if (base) return base;
+  }
+  if (bucketName === courseBucket) {
+    const base = cdnBase("course");
     if (base) return base;
   }
   if (bucketName === heroBucket) {
