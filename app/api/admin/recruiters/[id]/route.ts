@@ -43,8 +43,8 @@ export async function GET(_req: Request, { params }: Ctx) {
 
     return ok({
       recruiter: serialize(recruiter),
-      jobs: jobs.map(serialize),
-      applications: applications.map(serialize),
+      jobs: jobs.map((d) => serialize(d)),
+      applications: applications.map((d) => serialize(d)),
     });
   });
 }

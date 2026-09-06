@@ -65,7 +65,7 @@ export async function GET(req: Request) {
         .sort({ createdAt: -1 })
         .populate("postedBy", "firstName lastName email companyName")
         .lean();
-      return ok(jobs.map(serialize));
+      return ok(jobs.map((d) => serialize(d)));
     }
 
     const [jobs, total] = await Promise.all([
@@ -78,7 +78,7 @@ export async function GET(req: Request) {
       Job.countDocuments(filter),
     ]);
 
-    return ok(paginated(jobs.map(serialize), total, { page, limit }));
+    return ok(paginated(jobs.map((d) => serialize(d)), total, { page, limit }));
   });
 }
 

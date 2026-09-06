@@ -106,6 +106,6 @@ export async function GET() {
       .select(STUDENT_PROJECTION)
       .lean();
 
-    return ok(items.map(serialize));
+    return ok(items.map((d) => serialize(d)));
   });
 }

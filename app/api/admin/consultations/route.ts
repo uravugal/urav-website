@@ -57,7 +57,7 @@ export async function GET(req: Request) {
         .sort({ createdAt: -1 })
         .populate(populate)
         .lean();
-      return ok(items.map(serialize));
+      return ok(items.map((d) => serialize(d)));
     }
 
     // Tab counts ignore the active status filter (but respect the search) so
@@ -82,7 +82,7 @@ export async function GET(req: Request) {
       ]);
 
     return ok({
-      ...paginated(items.map(serialize), total, { page, limit }),
+      ...paginated(items.map((d) => serialize(d)), total, { page, limit }),
       counts: {
         all,
         New: fresh,

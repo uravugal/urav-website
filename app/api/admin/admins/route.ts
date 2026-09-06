@@ -42,7 +42,7 @@ export async function GET(req: Request) {
         .sort({ createdAt: -1 })
         .select("-password")
         .lean();
-      return ok(admins.map(serialize));
+      return ok(admins.map((d) => serialize(d)));
     }
 
     const [admins, total] = await Promise.all([
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
       User.countDocuments(filter),
     ]);
 
-    return ok(paginated(admins.map(serialize), total, { page, limit }));
+    return ok(paginated(admins.map((d) => serialize(d)), total, { page, limit }));
   });
 }
 

@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       .sort({ order: 1, createdAt: 1 })
       .lean();
 
-    return ok(slides.map(serialize));
+    return ok(slides.map((d) => serialize(d)));
   });
 }
 
