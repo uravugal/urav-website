@@ -44,7 +44,11 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <PageShell eyebrow="Legal" title="Privacy Policy" subtitle="">
+    <PageShell
+      eyebrow="Legal"
+      title="Privacy Policy"
+      subtitle="How we collect, use, and protect your information."
+    >
       <section className="container-page py-12">
         <div className="mx-auto max-w-3xl rounded-2xl border border-slate-100 bg-white p-8 shadow-sm sm:p-10">
           <p className="text-sm text-slate-400">Last updated: May 2026</p>
