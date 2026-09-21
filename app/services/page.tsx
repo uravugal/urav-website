@@ -79,7 +79,7 @@ export default function ServicesPage() {
     <PageShell
       eyebrow="Our Services"
       title="Everything you need to grow"
-      subtitle="Placeholder intro — replace later. From your first webinar to your next role, URAV supports every step of your journey."
+      subtitle="From your first webinar to your next role, URAV supports every step of your journey."
     >
       {/* Service cards */}
       <section className="container-page py-12">
@@ -111,8 +111,7 @@ export default function ServicesPage() {
         <div className="container-page py-14">
           <h2 className="h2 text-dark">How it works</h2>
           <p className="mt-2 max-w-xl text-slate-600">
-            Placeholder section — a simple three-step path from learning to
-            landing a role.
+            A simple three-step path from learning to landing a role.
           </p>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {process.map(({ icon: Icon, step, title, body }) => (
@@ -140,8 +139,7 @@ export default function ServicesPage() {
             Not sure where to start?
           </h2>
           <p className="max-w-md text-primary-light/90">
-            Placeholder copy — talk to our team and we&apos;ll help you find the
-            right path.
+            Talk to our team and we&apos;ll help you find the right path.
           </p>
           <div className="mt-2 flex flex-wrap justify-center gap-3">
             <Button
