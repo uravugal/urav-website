@@ -21,6 +21,7 @@ import type { CourseItem } from "@/lib/types";
 const empty = {
   title: "",
   description: "",
+  details: "",
   active: true,
 };
 type FormState = typeof empty;
@@ -58,6 +59,7 @@ export default function AdminCoursesPage() {
     setForm({
       title: c.title,
       description: c.description ?? "",
+      details: c.details ?? "",
       active: c.active ?? true,
     });
     setEditing(c);
@@ -79,6 +81,7 @@ export default function AdminCoursesPage() {
     const fd = new FormData();
     fd.append("title", form.title.trim());
     fd.append("description", form.description.trim());
+    fd.append("details", form.details.trim());
     fd.append("active", String(form.active));
     if (imageFile) fd.append("image", imageFile);
     if (dropImage && !imageFile) fd.append("removeImage", "true");
@@ -209,7 +212,15 @@ export default function AdminCoursesPage() {
             label="Description"
             value={form.description}
             onChange={(v) => setForm({ ...form, description: v })}
-            placeholder="What does this course cover?"
+            placeholder="Short summary shown on the course card"
+          />
+
+          <FormTextarea
+            label="Full details"
+            value={form.details}
+            onChange={(v) => setForm({ ...form, details: v })}
+            placeholder="Full explanation shown on the course's own page — curriculum, duration, prerequisites, what students will learn, etc."
+            rows={8}
           />
 
           <ImageField

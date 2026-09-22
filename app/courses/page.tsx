@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -56,8 +57,9 @@ export default function CoursesPage() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {courses.map((c) => (
-                <article
+                <Link
                   key={c._id}
+                  href={`/courses/${c._id}`}
                   className="flex flex-col overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="h-40 w-full overflow-hidden bg-light">
@@ -80,8 +82,11 @@ export default function CoursesPage() {
                         {c.description}
                       </p>
                     )}
+                    <span className="mt-3 text-sm font-medium text-primary">
+                      View details →
+                    </span>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           )}

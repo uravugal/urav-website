@@ -5,6 +5,13 @@ const courseSchema = new Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, default: "" },
     /**
+     * Full explanation shown on the course's own detail page. Kept
+     * separate from `description` (the short blurb used on the card
+     * grid) so the listing page doesn't get overloaded with a wall of
+     * text.
+     */
+    details: { type: String, default: "" },
+    /**
      * Thumbnail (S3). Empty when the admin hasn't uploaded one yet — the UI
      * then falls back to the built-in placeholder, so this is never
      * required.

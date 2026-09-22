@@ -56,6 +56,7 @@ export async function PUT(req: Request, { params }: Ctx) {
         update.title = text("title");
       }
       if (has("description")) update.description = text("description");
+      if (has("details")) update.details = text("details");
       if (has("active")) update.active = fd.get("active") !== "false";
 
       const image = readCourseImageFile(fd);
@@ -71,7 +72,7 @@ export async function PUT(req: Request, { params }: Ctx) {
       }
     } else {
       const body = await req.json();
-      const allowed = ["title", "description", "active"];
+      const allowed = ["title", "description", "details", "active"];
       for (const field of allowed) {
         if (body[field] !== undefined) update[field] = body[field];
       }

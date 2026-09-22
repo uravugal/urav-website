@@ -10,6 +10,7 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/components/AuthProvider";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { isAdminRole } from "@/lib/types";
+import { NavProgressBar } from "@/components/NavProgress";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -93,6 +94,9 @@ export function Navbar() {
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </nav>
+
+      {/* Page-change loader, sitting on the navbar's bottom border */}
+      <NavProgressBar className="absolute inset-x-0 -bottom-px z-10" />
 
       {open && (
         <div className="border-t border-slate-100 bg-white md:hidden">

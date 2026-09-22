@@ -97,6 +97,8 @@ export interface CourseItem {
   _id: string;
   title: string;
   description?: string;
+  /** Full explanation shown on the course's own detail page. */
+  details?: string;
   /** Uploaded thumbnail. Empty when the admin didn't add one. */
   imageUrl?: string;
   imageKey?: string;

@@ -44,6 +44,7 @@ export async function POST(req: Request) {
       fields = {
         title: text("title"),
         description: text("description"),
+        details: text("details"),
         active: fd.get("active") !== "false",
       };
       image = readCourseImageFile(fd);
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
       fields = {
         title: String(body.title ?? "").trim(),
         description: body.description || "",
+        details: body.details || "",
         active: body.active !== false,
       };
     }
