@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Mail,
   Images,
+  Sparkles,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -35,6 +36,7 @@ const nav = [
   { href: "/admin/recruiters", label: "Recruiters", icon: Building2 },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
   { href: "/admin/courses", label: "Courses", icon: BookOpen },
+  { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/webinars", label: "Webinars", icon: Video },
   { href: "/admin/applications", label: "Applications", icon: Users },
   {

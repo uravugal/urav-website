@@ -18,18 +18,22 @@ const secretAccessKey = process.env.URAV_AWS_SECRET_ACCESS_KEY;
  *   URAV_AWS_S3_HERO_BUCKET     — homepage hero slider images ONLY
  *   URAV_AWS_S3_WEBINAR_BUCKET  — webinar cover images
  *   URAV_AWS_S3_COURSE_BUCKET   — course thumbnail images
+ *   URAV_AWS_S3_SERVICE_BUCKET  — service thumbnail images
  *
  * If any is unset we fall back to the main bucket and keep the images
- * apart with their own key prefix (`hero/`, `webinars/`, `courses/`).
+ * apart with their own key prefix (`hero/`, `webinars/`, `courses/`,
+ * `services/`).
  */
 const heroBucket = process.env.URAV_AWS_S3_HERO_BUCKET || bucket;
 const webinarBucket = process.env.URAV_AWS_S3_WEBINAR_BUCKET || bucket;
 const courseBucket = process.env.URAV_AWS_S3_COURSE_BUCKET || bucket;
+const serviceBucket = process.env.URAV_AWS_S3_SERVICE_BUCKET || bucket;
 
 export const RESUME_BUCKET = bucket;
 export const HERO_BUCKET = heroBucket;
 export const WEBINAR_BUCKET = webinarBucket;
 export const COURSE_BUCKET = courseBucket;
+export const SERVICE_BUCKET = serviceBucket;
 
 let _client: S3Client | null = null;
 
@@ -70,6 +74,10 @@ function publicBase(bucketName: string): string {
   }
   if (bucketName === courseBucket) {
     const base = cdnBase("course");
+    if (base) return base;
+  }
+  if (bucketName === serviceBucket) {
+    const base = cdnBase("service");
     if (base) return base;
   }
   if (bucketName === heroBucket) {

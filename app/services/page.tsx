@@ -1,57 +1,14 @@
 import type { Metadata } from "next";
-import {
-  Video,
-  Briefcase,
-  GraduationCap,
-  Users,
-  LineChart,
-  Building2,
-  Search,
-  ClipboardList,
-  Rocket,
-  ArrowRight,
-} from "lucide-react";
+import { Search, ClipboardList, Rocket } from "lucide-react";
 import { PageShell } from "@/components/PageShell";
 import { Button } from "@/components/ui/Button";
+import { ServicesGrid } from "@/components/ServicesGrid";
 
 export const metadata: Metadata = {
   title: "Services — URAV",
   description:
     "Explore URAV services — webinars, career mentoring, placements, skill certifications and corporate consulting.",
 };
-
-const services = [
-  {
-    icon: Video,
-    title: "Live Webinars",
-    body: "Interactive, expert-led sessions across in-demand skills and industries.",
-  },
-  {
-    icon: GraduationCap,
-    title: "Skill Certifications",
-    body: "Earn recognised certificates that strengthen your profile with recruiters.",
-  },
-  {
-    icon: Briefcase,
-    title: "Job Placements",
-    body: "A curated jobs board plus one-click applications to top partner companies.",
-  },
-  {
-    icon: Users,
-    title: "1:1 Mentoring",
-    body: "Personal guidance from industry mentors on career moves and interviews.",
-  },
-  {
-    icon: LineChart,
-    title: "Career Consulting",
-    body: "Resume reviews, portfolio audits and a clear roadmap for your next role.",
-  },
-  {
-    icon: Building2,
-    title: "For Organizations",
-    body: "Hiring support, talent pipelines and upskilling programs for teams.",
-  },
-];
 
 const process = [
   {
@@ -83,27 +40,7 @@ export default function ServicesPage() {
     >
       {/* Service cards */}
       <section className="container-page py-12">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map(({ icon: Icon, title, body }) => (
-            <div
-              key={title}
-              className="group rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
-            >
-              <span className="grid h-12 w-12 place-items-center rounded-xl bg-primary-light text-primary transition-colors group-hover:bg-primary group-hover:text-white">
-                <Icon className="h-6 w-6" />
-              </span>
-              <h3 className="mt-4 font-heading text-lg font-semibold text-dark">
-                {title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                {body}
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                Learn more <ArrowRight className="h-4 w-4" />
-              </span>
-            </div>
-          ))}
-        </div>
+        <ServicesGrid />
       </section>
 
       {/* Process */}

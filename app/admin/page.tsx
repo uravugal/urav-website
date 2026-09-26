@@ -6,6 +6,7 @@ import {
   Briefcase,
   Video,
   BookOpen,
+  Sparkles,
   Users,
   FileText,
   GraduationCap,
@@ -25,6 +26,7 @@ interface Stats {
   jobs: number;
   webinars: number;
   courses: number;
+  services: number;
   recruiters: number;
   pendingRecruiters: number;
   recruiterJobs: number;
@@ -57,6 +59,7 @@ export default function AdminOverview() {
     { label: "Jobs Posted", value: stats?.jobs, icon: Briefcase, href: "/admin/jobs" },
     { label: "Webinars", value: stats?.webinars, icon: Video, href: "/admin/webinars" },
     { label: "Courses", value: stats?.courses, icon: BookOpen, href: "/admin/courses" },
+    { label: "Services", value: stats?.services, icon: Sparkles, href: "/admin/services" },
     {
       label: "Consultations",
       value: stats?.consultations,
