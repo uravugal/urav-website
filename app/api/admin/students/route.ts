@@ -56,7 +56,7 @@ export async function GET(req: Request) {
         .sort({ createdAt: -1 })
         .select("-password")
         .lean();
-      return ok(students.map(serialize));
+      return ok(students.map((d) => serialize(d)));
     }
 
     // Counts for the tab labels are computed independently of the active
@@ -77,7 +77,7 @@ export async function GET(req: Request) {
     ]);
 
     return ok({
-      ...paginated(students.map(serialize), total, { page, limit }),
+      ...paginated(students.map((d) => serialize(d)), total, { page, limit }),
       counts: { all, school, college: all - school },
     });
   });

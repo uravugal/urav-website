@@ -93,6 +93,42 @@ export interface WebinarItem {
   createdAt?: string;
 }
 
+export interface CourseItem {
+  _id: string;
+  title: string;
+  description?: string;
+  /** Full explanation shown on the course's own detail page. */
+  details?: string;
+  /** Uploaded thumbnail. Empty when the admin didn't add one. */
+  imageUrl?: string;
+  imageKey?: string;
+  /**
+   * Always set by the course API — the uploaded image, or the built-in
+   * placeholder. Use this for rendering.
+   */
+  displayImageUrl?: string;
+  active?: boolean;
+  createdAt?: string;
+}
+
+export interface ServiceItem {
+  _id: string;
+  title: string;
+  description?: string;
+  /** Full explanation shown on the service's own detail page. */
+  details?: string;
+  /** Uploaded thumbnail. Empty when the admin didn't add one. */
+  imageUrl?: string;
+  imageKey?: string;
+  /**
+   * Always set by the service API — the uploaded image, or the built-in
+   * placeholder. Use this for rendering.
+   */
+  displayImageUrl?: string;
+  active?: boolean;
+  createdAt?: string;
+}
+
 export interface StudentRecord {
   _id: string;
   firstName: string;

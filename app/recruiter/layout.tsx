@@ -15,6 +15,7 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/components/AuthProvider";
 import { SkeletonPage } from "@/components/ui/Skeleton";
 import { isAdminRole } from "@/lib/types";
+import { NavProgressBar } from "@/components/NavProgress";
 
 const nav = [
   { href: "/recruiter", label: "Overview", icon: LayoutDashboard, exact: true },
@@ -52,6 +53,7 @@ export default function RecruiterLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-light lg:flex">
+      <NavProgressBar className="fixed inset-x-0 top-0 z-50" />
       <aside className="border-b border-slate-200 bg-white lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between p-5">
           <Link href="/" className="flex items-center gap-2">

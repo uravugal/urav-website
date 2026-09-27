@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import { NavProgressTracker } from "@/components/NavProgress";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -30,6 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
       <body>
+        <Suspense fallback={null}>
+          <NavProgressTracker />
+        </Suspense>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

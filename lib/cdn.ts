@@ -16,6 +16,8 @@
  *
  *   HERO_URL     — homepage hero slider images
  *   WEBINAR_URL  — webinar cover images
+ *   COURSE_URL   — course thumbnail images
+ *   SERVICE_URL  — service thumbnail images
  *   RESUME_URL   — student CVs
  *
  * The older `URAV_AWS_S3_*_PUBLIC_BASE_URL` names still work as fallbacks. With
@@ -26,7 +28,7 @@
  * builtins) — it is pure string work.
  */
 
-export type MediaSurface = "hero" | "webinar" | "resume";
+export type MediaSurface = "hero" | "webinar" | "course" | "service" | "resume";
 
 /** Raw env value for a surface, newest name first. */
 function rawBase(surface: MediaSurface): string | undefined {
@@ -39,6 +41,16 @@ function rawBase(surface: MediaSurface): string | undefined {
       return (
         process.env.WEBINAR_URL ||
         process.env.URAV_AWS_S3_WEBINAR_PUBLIC_BASE_URL
+      );
+    case "course":
+      return (
+        process.env.COURSE_URL ||
+        process.env.URAV_AWS_S3_COURSE_PUBLIC_BASE_URL
+      );
+    case "service":
+      return (
+        process.env.SERVICE_URL ||
+        process.env.URAV_AWS_S3_SERVICE_PUBLIC_BASE_URL
       );
     case "resume":
       return process.env.RESUME_URL || process.env.URAV_AWS_S3_PUBLIC_BASE_URL;
@@ -65,6 +77,8 @@ function bucketNames(): string[] {
   return [
     process.env.URAV_AWS_S3_HERO_BUCKET,
     process.env.URAV_AWS_S3_WEBINAR_BUCKET,
+    process.env.URAV_AWS_S3_COURSE_BUCKET,
+    process.env.URAV_AWS_S3_SERVICE_BUCKET,
     process.env.URAV_AWS_S3_BUCKET,
   ].filter((name): name is string => Boolean(name));
 }

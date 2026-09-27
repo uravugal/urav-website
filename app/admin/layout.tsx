@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Briefcase,
   Video,
+  BookOpen,
   Users,
   GraduationCap,
   Building2,
@@ -14,6 +15,7 @@ import {
   MessageSquare,
   Mail,
   Images,
+  Sparkles,
   LogOut,
   ExternalLink,
 } from "lucide-react";
@@ -21,6 +23,7 @@ import { Logo } from "@/components/Logo";
 import { useAuth } from "@/components/AuthProvider";
 import { SkeletonPage } from "@/components/ui/Skeleton";
 import { isAdminRole } from "@/lib/types";
+import { NavProgressBar } from "@/components/NavProgress";
 
 /**
  * `superOnly` entries are hidden from ordinary admins. The API routes
@@ -32,6 +35,8 @@ const nav = [
   { href: "/admin/students", label: "Students", icon: GraduationCap },
   { href: "/admin/recruiters", label: "Recruiters", icon: Building2 },
   { href: "/admin/jobs", label: "Jobs", icon: Briefcase },
+  { href: "/admin/courses", label: "Courses", icon: BookOpen },
+  { href: "/admin/services", label: "Services", icon: Sparkles },
   { href: "/admin/webinars", label: "Webinars", icon: Video },
   { href: "/admin/applications", label: "Applications", icon: Users },
   {
@@ -85,6 +90,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-light lg:flex">
+      <NavProgressBar className="fixed inset-x-0 top-0 z-50" />
       {/* Sidebar */}
       <aside className="border-b border-slate-200 bg-white lg:min-h-screen lg:w-64 lg:border-b-0 lg:border-r">
         <div className="flex items-center justify-between p-5">

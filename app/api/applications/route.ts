@@ -106,7 +106,7 @@ export async function GET(req: Request) {
         .populate("webinar")
         .populate("user", USER_FIELDS)
         .lean();
-      return ok(apps.map(serialize));
+      return ok(apps.map((d) => serialize(d)));
     }
 
     const [apps, total, jobCount, webinarCount] = await Promise.all([
@@ -124,7 +124,7 @@ export async function GET(req: Request) {
     ]);
 
     return ok({
-      ...paginated(apps.map(serialize), total, { page, limit }),
+      ...paginated(apps.map((d) => serialize(d)), total, { page, limit }),
       counts: { job: jobCount, webinar: webinarCount },
     });
   });
